@@ -215,7 +215,7 @@ http.createServer(
         req.on('data',(data)=>{
             post = post + data;
             post = qs.parse(post);
-            chapterList.splice(post.chapterId,1);
+            chapterList.splice(post.chapterId-1,1);
         })
         req.on('end',()=>{
             res.end(JSON.stringify(chapterList));
