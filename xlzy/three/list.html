@@ -114,13 +114,13 @@
         return req.json();
    }).then((data)=>{
        var tbody = document.getElementById('result');
-        data.map((item,index)=>{
+        data.map((item)=>{
             var tr = document.createElement('tr');
             var td_id = document.createElement('td');
             var td_name = document.createElement('td');
             var td_number = document.createElement('td');
             var td_active = document.createElement('td');
-            td_id.innerHTML = index+1;
+            td_id.innerHTML = item.chapterId;
             td_name.innerHTML = item.chapterName;
             if(item.views)
                 td_number.innerHTML = item.views;

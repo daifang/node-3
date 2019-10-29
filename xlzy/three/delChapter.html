@@ -10,6 +10,9 @@
             margin: 0;
             padding: 0;
         }
+        ul li{
+            list-style: none;
+        }
         body {
         }
         table {
@@ -146,6 +149,38 @@
             margin-top: 20px;
             margin-bottom: 30px;
         }
+        .header{
+            background-color: #8aa9ff;
+            width: 80%;
+            height: 50px;
+            margin-left: 10%;
+            border: 1px solid wheat;
+        }
+        .header span{
+            display: block;
+            float: left;
+            height: 50px;
+            width:24.8%;
+            height: 50px;
+            border:0.5px solid rgb(0, 0, 0);
+            line-height: 50px;
+        }
+        .header input{
+            width: 30px;
+            height: 30px;
+            margin-top: 10px;
+        }
+        #del{
+            outline: none;
+            border: none;
+            width: 200px;
+            height: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 30px;
+            border-radius: 10px;
+            background-color: rgb(252, 61, 27);
+        }    
     </style> 
 </head>
 <body>
@@ -163,14 +198,15 @@
             </ul>
         </div>
         <div class="right" style="text-align: center;">
-            <div style="margin-top: 100px;">
-                <h2>指引</h2>
-                <p>比如要删除第一篇文章，只需输入1</p>
-            </div>
-           <form action="/del" method="POST" style="margin-top: 50px;">
-
-                <input id="text" type="text" name="chapterId" placeholder="输入要删除的文章的下标" style="width: 300px;height: 50px;text-align: center;"/>
-                <input type="button" type="submit" value="删除" id="del">
+           <form action="/del" method="POST" style="margin-top: 50px;" >
+                <ul id="list">
+                    <li class="header">
+                        <span>编号</span>
+                        <span>作者</span>
+                        <span>标题</span>
+                        <span>选中</span>
+                    </li>
+                </ul>
             </form>
         </div>
     </div>
@@ -178,10 +214,37 @@
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 
 <script>
-    $("#del").click(function() {
-        $.post("http://localhost:8083/del", {"chapterId": $("#text").val()}, function() {
-            window.location = "http://localhost:8083/list"
+    fetch('http://localhost:8083/add').then(req=>req.json()).then(data=>{
+        let ul = document.getElementById('list');
+        list(ul,data);
+    }).catch(err=>{console.log(err)});
+
+    list = (ele,data)=>{
+        data.map((item,index)=>{
+            let span1 = document.createElement('span');
+            let span2 = document.createElement('span');
+            let span3 = document.createElement('span');
+            let check = document.createElement('input');
+            check.type = 'checkbox';
+            check.value = item.chapterName;
+            check.key = item.chapterId;
+            check.name = 'check';
+            let li = document.createElement('li');
+            span1.innerHTML = item.chapterId;
+            span2.innerHTML = item.author;
+            span3.innerHTML = item.chapterName.substr(0,8)+'...';
+            li.className = 'header';
+            li.appendChild(span1);
+            li.appendChild(span2);
+            li.appendChild(span3);
+            li.appendChild(check);
+            ele.appendChild(li);
         })
-    })
+        let btn = document.createElement('input');
+        btn.type = 'submit';
+        btn.value = '删除';
+        btn.id = 'del';
+        ele.appendChild(btn);
+    }
 </script>
 </html>

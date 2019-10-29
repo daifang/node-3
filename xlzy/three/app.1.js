@@ -53,8 +53,13 @@ http.createServer(
         //页面
         routerPage(req,res);
         if(url.parse(req.url).pathname === '/list' || url.parse(req.url).pathname === '/addChapter' || url.parse(req.url).pathname === '/delChapter'){
+            // if(cookie_check(req,res)){
+            //     backRouter(req,res,true);
+            // }
             password(req,res);
         }
+        // res.setHeader('Set-Cookie',"user=name;");
+        // console.log(req.headers.cookie); 
     }).listen(8083);
     //页面路由
     function routerPage(req,res){
@@ -97,7 +102,6 @@ http.createServer(
             }
             case '/del':{
                 del(req,res);
-                loadPage(res,__dirname + '/list');
                 break;
             }
         }
@@ -146,7 +150,7 @@ http.createServer(
         }
     }
     //登录验证
-    async function password(req,res) {
+   function password(req,res) {
         // console.log('-=-=-=-=-=-=-=-=-=-=-=-=-=-');
         var postData = '';
             req.on('data',(data) => {
@@ -161,8 +165,16 @@ http.createServer(
                 // console.log('u:',usrarr);
                 var rv = check(usrarr,userList);//校验
                 backRouter(req,res,rv);
+                // if(usrarr[0] === userList[0].username && usrarr[1] === userList[0].pwd){
+                //     res.setHeader("Set-cookie",[`name=${usrarr[0]}`,"type=true"]);
+                //     usrarr[0] = null;
+                //     usrarr[1] = null;
+                // }else{
+                //     res.setHeader("Set-cookie",[`name=${usrarr[0]}`,"type=false"]);
+                // }
             })
     }
+    //之前使用内存存储的检测登录状态
     function check(usrarr,userList){
         let sign = false;
         if(usrarr[0] === userList[0].username && usrarr[1] === userList[0].pwd){
@@ -172,17 +184,17 @@ http.createServer(
         return sign;
     }
     //cookie版检测登录状态
-    // function cookie_check(req,res){
-    //     if(req.headers.cookie){
-    //         var cookie = req.headers.cookie.split(';');
-    //         console.log(cookie);
-    //         console.log(typeof cookie[2]);
-    //         if(cookie.indexOf('type=true'))
-    //             return true;
-    //     }else
-    //         loadPage(res,__dirname + '/Error');
-    //     return false;
-    // }
+    function cookie_check(req,res){
+        if(req.headers.cookie){
+            var cookie = req.headers.cookie.split(';');
+            console.log(cookie);
+            console.log(typeof cookie[2]);
+            if(cookie.indexOf('type=true'))
+                return true;
+        }else
+            loadPage(res,__dirname + '/Error');
+        return false;
+    }
     //后台路由
     function backRouter(req,res,rv){
         var path = url.parse(req.url).pathname;
@@ -228,33 +240,9 @@ http.createServer(
         req.on('data',(data)=>{
             post = post + data;
             post = qs.parse(post);
-            // console.log(post);
+            chapterList.splice(post.chapterId-1,1);
         })
         req.on('end',()=>{
-            let len = chapterList.length;
-            console.log(post.check);
-            chapterList.map((item,index)=>{
-                if(item.chapterName === post.check){
-                    chapterList.splice(index,1);
-                }else if(Array.isArray(post.check)){
-                    console.log('array');
-                    for(let i = 0;i<len;i++){
-                        post.check.map(item=>{
-                            if(chapterList[i].chapterName === item){
-                                chapterList.splice(i,1);
-                                i=0;
-                                len = chapterList.length;
-                            }
-                        })
-                    }
-                }
-            })
+            res.end(JSON.stringify(chapterList));
         })
     }
-    //登录状态维持,十分钟一次
-    function loginTime(){
-        setInterval(() => {
-            usrarr = [];
-        }, 600000);
-    }
-    loginTime();
